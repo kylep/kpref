@@ -1,0 +1,12 @@
+image:
+  prefix: rook
+  repository: rook/ceph
+  tag: v1.6.4
+  pullPolicy: IfNotPresent
+
+logLevel: INFO
+
+## Settings for whether to disable the drivers or other daemons if they are not
+## needed
+csi:
+  #logLevel: 0

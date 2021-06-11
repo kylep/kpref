@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment-1
+  labels:
+    app: nginx-1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cephfs-pvc-sample-consumer
+  template:
+    metadata:
+      labels:
+        app: cephfs-pvc-sample-consumer
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /var/lib/www/html
+          name: pv1
+      volumes:
+      - name: pv1
+        persistentVolumeClaim:
+          claimName: cephfs-pvc-1

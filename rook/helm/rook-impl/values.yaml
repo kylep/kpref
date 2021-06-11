@@ -1,0 +1,16 @@
+---
+#  .Values.theseThings
+
+# CephFS StorageClass config
+cephfs:
+  fsName: myfs
+  poolName: myfs-data0
+
+rbd:
+  failureDomain: host
+  replicas: 3
+
+storage:
+  useAllNodes: true
+  useAllDevices: false
+  deviceFilter: vdb

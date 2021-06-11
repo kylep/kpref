@@ -11,7 +11,7 @@ setup(
     author_email="kyle@pericak.com",
     python_requires=">=3.0.0",
     zip_safe=False,
-    install_requires=["uvicorn", "Quart"],
+    install_requires=["hypercorn", "Quart"],
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",

@@ -1,0 +1,15 @@
+# Chart.yaml
+apiVersion: v2
+name: rook-impl
+description: Implementation of Rook
+type: application
+version: 0.1.0
+appVersion: 0.1.0
+keywords:
+  - Rook
+  - Ceph
+  - Implementation
+home: https://github.com/kylep
+maintainers:
+  - name: Kyle Pericak
+    url: https://github.com/kylep
