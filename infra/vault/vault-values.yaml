@@ -1,0 +1,5 @@
+server:
+  ha:
+    enabled: false
+    replicas: 1
+
