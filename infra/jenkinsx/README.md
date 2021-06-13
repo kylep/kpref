@@ -34,7 +34,16 @@ jx compliance delete
 
 ### Run the install
 
-The current `jx boot` command is defective and does not work with the format of GitHub tokens
+`jx` REALLY wants to be used on GKE, so this will fail.
+
+```
+jx boot
+```
+
+Edit `jx-requirements.yml` and set `provider: kubernetes`. Try it again. It'll still fail, but
+further along the install this time.
+
+The current `jx boot` command is defective and does not work with the new format of GitHub tokens
 that are now issued. Run the command then fix it up. Once this [bug](https://github.com/jenkins-x/jx/issues/7633)
 is closed, the issue will be resolved.
 
@@ -42,8 +51,8 @@ is closed, the issue will be resolved.
 jx boot
 ```
 
-It will error out when you try and pass your GitHub token saying that it doesn't match the regex.
-From inside the `jenkins-x-boot-config` directory, fix the defect.
+Now it will error out when you try and pass your GitHub token saying that it doesn't match the
+regex. From inside the `jenkins-x-boot-config` directory, fix the defect.
 
 `vi ./env/parameters.tmpl.schema.json`
 
@@ -66,5 +75,6 @@ error: failed to interpret pipeline file jenkins-x.yml: failed to run '/bin/sh -
 ```
 
 At this point, you might decide that Jenkins X is not ready for production and use something else.
-
+That seems like a good idea to me, too. It probably works on GKE, which is of zero use for private
+clouds.
 
