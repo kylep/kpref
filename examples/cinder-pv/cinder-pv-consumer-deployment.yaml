@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: cinder-pv-consumer
+  name: cinder-pv-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cinder-pv-consumer
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: cinder-pv-consumer
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        resources: {}
+      volumes:
+      - name: csi-data-cinderplugin
+        persistentVolumeClaim:
+          claimName: cinder-pv-1
+          readOnly: false
+status: {}
