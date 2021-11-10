@@ -352,18 +352,22 @@ spec:
             - name: secret-cinderplugin
               mountPath: /etc/config
               readOnly: true
-            # - name: cacert
-            #   mountPath: /etc/cacert
-            #   readOnly: true
+{% if is_cacert_enabled %}
+             - name: cacert
+               mountPath: /etc/cacert
+               readOnly: true
+{% endif %}
       volumes:
         - name: socket-dir
           emptyDir:
         - name: secret-cinderplugin
           secret:
             secretName: cloud-config
-        # - name: cacert
-        #   hostPath:
-        #     path: /etc/cacert
+{% if is_cacert_enabled %}
+        - name: cacert
+          hostPath:
+            path: /etc/cacert
+{% endif %}
 # This YAML defines all API objects to create RBAC roles for csi node plugin.
 
 ---
@@ -496,9 +500,11 @@ spec:
             - name: secret-cinderplugin
               mountPath: /etc/config
               readOnly: true
-            # - name: cacert
-            #   mountPath: /etc/cacert
-            #   readOnly: true
+{% if is_cacert_enabled %}
+            - name: cacert
+              mountPath: /etc/cacert
+              readOnly: true
+{% endif %}
       volumes:
         - name: socket-dir
           hostPath:
@@ -519,10 +525,11 @@ spec:
         - name: secret-cinderplugin
           secret:
             secretName: cloud-config
-        # - name: cacert
-        #   hostPath:
-        #     path: /etc/cacert
-
+{% if is_cacert_enabled %}
+        - name: cacert
+          hostPath:
+            path: /etc/cacert
+{% endif %}
 ---
 
 kind: CSIDriver

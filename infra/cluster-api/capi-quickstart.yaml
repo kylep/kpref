@@ -1,0 +1,203 @@
+apiVersion: cluster.x-k8s.io/v1alpha3
+kind: Cluster
+metadata:
+  name: capi-quickstart
+  namespace: default
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 192.168.0.0/16
+    serviceDomain: cluster.local
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+    kind: KubeadmControlPlane
+    name: capi-quickstart-control-plane
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+    kind: OpenStackCluster
+    name: capi-quickstart
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+kind: OpenStackCluster
+metadata:
+  name: capi-quickstart
+  namespace: default
+spec:
+  externalNetworkId: dae7c823-e15a-4409-b9ca-45e7c2849349
+  cloudName: breqwatr
+  cloudsSecret:
+    name: capi-quickstart-cloud-config
+    namespace: default
+  # disablePortSecurity: false
+  dnsNameservers:
+  - 10.11.101.25
+  managedAPIServerLoadBalancer: false
+  managedSecurityGroups: true
+  nodeCidr: 10.6.0.0/24
+  useOctavia: false
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+kind: KubeadmControlPlane
+metadata:
+  name: capi-quickstart-control-plane
+  namespace: default
+spec:
+  infrastructureTemplate:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+    kind: OpenStackMachineTemplate
+    name: capi-quickstart-control-plane
+  kubeadmConfigSpec:
+    useExperimentalRetryJoin: true
+    clusterConfiguration:
+      apiServer:
+        extraArgs:
+          cloud-config: /etc/kubernetes/cloud.conf
+          cloud-provider: openstack
+        extraVolumes:
+        - hostPath: /etc/kubernetes/cloud.conf
+          mountPath: /etc/kubernetes/cloud.conf
+          name: cloud
+          readOnly: true
+      controllerManager:
+        extraArgs:
+          cloud-config: /etc/kubernetes/cloud.conf
+          cloud-provider: openstack
+        extraVolumes:
+        - hostPath: /etc/kubernetes/cloud.conf
+          mountPath: /etc/kubernetes/cloud.conf
+          name: cloud
+          readOnly: true
+        - hostPath: /etc/certs/cacert
+          mountPath: /etc/certs/cacert
+          name: cacerts
+          readOnly: true
+      imageRepository: k8s.gcr.io
+    files:
+    - content: W0dsb2JhbF0KYXV0aC11cmw9aHR0cHM6Ly9jbG91ZC5icmVxd2F0ci5jb206NTAwMC8KdXNlcm5hbWU9ImNsdXN0ZXJhcGkiCnBhc3N3b3JkPSJCcmVxd2F0cjEwMCIKdGVuYW50LW5hbWU9Imt5bGUiCmRvbWFpbi1uYW1lPSJEZWZhdWx0IgpyZWdpb249IlJlZ2lvbk9uZSIK
+      encoding: base64
+      owner: root
+      path: /etc/kubernetes/cloud.conf
+      permissions: "0600"
+    - content: Cg==
+      encoding: base64
+      owner: root
+      path: /etc/certs/cacert
+      permissions: "0600"
+    initConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          cloud-config: /etc/kubernetes/cloud.conf
+          cloud-provider: openstack
+        name: '{{ local_hostname }}'
+    joinConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          cloud-config: /etc/kubernetes/cloud.conf
+          cloud-provider: openstack
+        name: '{{ local_hostname }}'
+  replicas: 1
+  version: v1.19.11
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+kind: OpenStackMachineTemplate
+metadata:
+  name: capi-quickstart-control-plane
+  namespace: default
+spec:
+  template:
+    spec:
+      rootVolume:
+        diskSize: 30
+        sourceType: "image"
+        sourceUUID: bf90c7fc-c34c-4a83-9666-1f681e213976
+      cloudName: breqwatr
+      cloudsSecret:
+        name: capi-quickstart-cloud-config
+        namespace: default
+      flavor: medium-2
+      image: CAPI-ImgMod
+      sshKeyName: arcus
+---
+apiVersion: cluster.x-k8s.io/v1alpha3
+kind: MachineDeployment
+metadata:
+  name: capi-quickstart-md-0
+  namespace: default
+spec:
+  clusterName: capi-quickstart
+  replicas: 1
+  selector:
+    matchLabels: null
+  template:
+    spec:
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+          kind: KubeadmConfigTemplate
+          name: capi-quickstart-md-0
+      clusterName: capi-quickstart
+      failureDomain: nova
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+        kind: OpenStackMachineTemplate
+        name: capi-quickstart-md-0
+      version: v1.19.11
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+kind: OpenStackMachineTemplate
+metadata:
+  name: capi-quickstart-md-0
+  namespace: default
+spec:
+  template:
+    spec:
+      rootVolume:
+        diskSize: 30
+        sourceType: "image"
+        sourceUUID: bf90c7fc-c34c-4a83-9666-1f681e213976
+      cloudName: breqwatr
+      cloudsSecret:
+        name: capi-quickstart-cloud-config
+        namespace: default
+      flavor: medium-2
+      image: CAPI-ImgMod
+      sshKeyName: arcus
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+kind: KubeadmConfigTemplate
+metadata:
+  name: capi-quickstart-md-0
+  namespace: default
+spec:
+  template:
+    spec:
+      useExperimentalRetryJoin: true
+      files:
+      - content: W0dsb2JhbF0KYXV0aC11cmw9aHR0cHM6Ly9jbG91ZC5icmVxd2F0ci5jb206NTAwMC8KdXNlcm5hbWU9ImNsdXN0ZXJhcGkiCnBhc3N3b3JkPSJCcmVxd2F0cjEwMCIKdGVuYW50LW5hbWU9Imt5bGUiCmRvbWFpbi1uYW1lPSJEZWZhdWx0IgpyZWdpb249IlJlZ2lvbk9uZSIK
+        encoding: base64
+        owner: root
+        path: /etc/kubernetes/cloud.conf
+        permissions: "0600"
+      - content: Cg==
+        encoding: base64
+        owner: root
+        path: /etc/certs/cacert
+        permissions: "0600"
+      joinConfiguration:
+        nodeRegistration:
+          kubeletExtraArgs:
+            cloud-config: /etc/kubernetes/cloud.conf
+            cloud-provider: openstack
+          name: '{{ local_hostname }}'
+---
+apiVersion: v1
+data:
+  cacert: Cg==
+  clouds.yaml: Y2xvdWRzOgogIGJyZXF3YXRyOgogICAgaW50ZXJmYWNlOiBwdWJsaWMKICAgIHZlcmlmeTogZmFsc2UKICAgIGF1dGg6CiAgICAgIGF1dGhfdXJsOiBodHRwczovL2Nsb3VkLmJyZXF3YXRyLmNvbTo1MDAwLwogICAgICB1c2VyX2RvbWFpbl9uYW1lOiBEZWZhdWx0CiAgICAgIHByb2plY3RfZG9tYWluX25hbWU6IERlZmF1bHQKICAgICAgcHJvamVjdF9uYW1lOiBreWxlCiAgICAgIHVzZXJuYW1lOiBjbHVzdGVyYXBpCiAgICAgIHBhc3N3b3JkOiBCcmVxd2F0cjEwMAogICAgcmVnaW9uX25hbWU6IFJlZ2lvbk9uZQo=
+kind: Secret
+metadata:
+  labels:
+    clusterctl.cluster.x-k8s.io/move: "true"
+  name: capi-quickstart-cloud-config
+  namespace: default
